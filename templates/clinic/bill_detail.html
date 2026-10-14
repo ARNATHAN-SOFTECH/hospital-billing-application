@@ -1,14 +1,711 @@
 {% extends "base.html" %}
-{% block title %}{{ bill.bill_number }} | Hospital Billing{% endblock %}
-{% block extra_head %}<style>@media print{.topbar,.footer,.no-print,.messages{display:none!important}.page{padding:0!important;max-width:none!important}.invoice{border:0!important;box-shadow:none!important;margin:0!important}.invoice-actions{display:none!important}body{background:#fff!important}}</style>{% endblock %}
+
+{% block title %}
+    {{ bill.bill_number }} | Sivapriya Ayurvedic Hospital
+{% endblock %}
+
+{% block extra_head %}
+
+<style>
+    /* =====================================================
+        PAGE AND PRINT SETTINGS
+    ===================================================== */
+
+    .treatment-page {
+        background: #f3f3f0;
+        min-height: 100vh;
+        padding: 25px 15px;
+        color: #222;
+        font-family: "Times New Roman", Times, serif;
+    }
+
+    .treatment-actions {
+        max-width: 800px;
+        margin: 0 auto 18px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        font-family: Arial, sans-serif;
+    }
+
+    .treatment-actions a,
+    .treatment-actions button {
+        display: inline-block;
+        padding: 10px 18px;
+        border: 1px solid #555;
+        background: #fff;
+        color: #222;
+        text-decoration: none;
+        font-size: 13px;
+        cursor: pointer;
+        border-radius: 0;
+    }
+
+    .treatment-actions button:hover,
+    .treatment-actions a:hover {
+        background: #e8e8e5;
+    }
+
+    /* =====================================================
+        A4 BILL PAPER (TREATMENT - UNCHANGED)
+    ===================================================== */
+
+    .treatment-paper {
+        width: 100%;
+        max-width: 800px;
+        min-height: 1050px;
+        margin: 0 auto;
+        padding: 48px 42px 35px;
+        background: #fff;
+        color: #222;
+        box-sizing: border-box;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.10);
+        font-family: "Times New Roman", Times, serif;
+        font-size: 14px;
+    }
+
+    .treatment-hospital-header {
+        margin-bottom: 42px;
+        line-height: 1.35;
+    }
+
+    .treatment-hospital-name {
+        font-size: 30px;
+        font-weight: bold;
+        line-height: 1.15;
+        margin: 0 0 3px;
+        letter-spacing: -0.4px;
+    }
+
+    .treatment-hospital-subtitle {
+        font-size: 16px;
+        margin: 0;
+    }
+
+    .treatment-hospital-address {
+        font-size: 15px;
+        margin: 2px 0 0;
+    }
+
+    .treatment-hospital-phone {
+        font-size: 15px;
+        margin: 2px 0 0;
+        text-decoration: underline;
+    }
+
+    .treatment-information {
+        display: grid;
+        grid-template-columns: 1.6fr 0.9fr;
+        column-gap: 25px;
+        align-items: start;
+        margin-bottom: 7px;
+    }
+
+    .treatment-patient-details,
+    .treatment-bill-details {
+        min-width: 0;
+    }
+
+    .treatment-patient-details {
+        line-height: 1.65;
+    }
+
+    .treatment-patient-name {
+        font-size: 16px;
+        font-weight: bold;
+    }
+
+    .treatment-address {
+        padding-left: 44px;
+        line-height: 1.5;
+        overflow-wrap: anywhere;
+    }
+
+    .treatment-info-row {
+        display: grid;
+        grid-template-columns: 100px minmax(0, 1fr);
+        gap: 5px;
+        align-items: baseline;
+        line-height: 1.65;
+    }
+
+    .treatment-info-label {
+        white-space: nowrap;
+    }
+
+    .treatment-info-value {
+        overflow-wrap: anywhere;
+    }
+
+    .treatment-bill-details .treatment-info-row {
+        grid-template-columns: 85px minmax(0, 1fr);
+    }
+
+    .treatment-bill-details .treatment-info-value {
+        text-align: right;
+    }
+
+    .treatment-date-details {
+        margin-top: 20px;
+        line-height: 1.65;
+    }
+
+    .treatment-date-details p {
+        margin: 0;
+    }
+
+    .treatment-bill-title {
+        text-align: center;
+        font-size: 16px;
+        font-weight: bold;
+        text-decoration: underline;
+        margin: 0 0 22px;
+        line-height: 1.3;
+    }
+
+    .treatment-table-wrapper {
+        width: 100%;
+        margin: 0;
+    }
+
+    .treatment-items-table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+        border: 1px solid #444;
+        font-size: 14px;
+        color: #222;
+    }
+
+    .treatment-items-table th,
+    .treatment-items-table td {
+        border-left: 1px solid #555;
+        border-right: 1px solid #555;
+        padding: 5px 4px;
+        vertical-align: top;
+        overflow-wrap: anywhere;
+    }
+
+    .treatment-items-table thead th {
+        border-top: 1px solid #444;
+        border-bottom: 1px solid #444;
+        text-align: center;
+        font-size: 15px;
+        font-weight: bold;
+        padding: 5px 3px;
+    }
+
+    .treatment-items-table tbody td {
+        height: 27px;
+    }
+
+    .treatment-items-table .serial-column {
+        width: 8%;
+        text-align: right;
+    }
+
+    .treatment-items-table .particulars-column {
+        width: 46%;
+        text-align: left;
+    }
+
+    .treatment-items-table .rate-column {
+        width: 16%;
+        text-align: right;
+    }
+
+    .treatment-items-table .unit-column {
+        width: 12%;
+        text-align: right;
+    }
+
+    .treatment-items-table .amount-column {
+        width: 18%;
+        text-align: right;
+    }
+
+    .treatment-empty-row td {
+        height: 300px;
+    }
+
+    .treatment-items-table tfoot td {
+        border-top: 1px solid #555;
+        border-bottom: 1px solid #555;
+        height: 25px;
+        vertical-align: middle;
+        font-weight: bold;
+    }
+
+    .treatment-items-table tfoot .signature-cell {
+        border-left: 0;
+        border-bottom: 0;
+        font-weight: normal;
+        font-style: italic;
+        text-align: left;
+        padding-left: 10px;
+    }
+
+    .treatment-items-table tfoot .total-label-cell {
+        text-align: right;
+        border-right: 0;
+    }
+
+    .treatment-items-table tfoot .total-amount-cell {
+        text-align: right;
+        white-space: nowrap;
+    }
+
+    .treatment-payment-summary {
+        margin-top: 12px;
+        margin-left: auto;
+        width: 260px;
+        font-size: 13px;
+        line-height: 1.7;
+    }
+
+    .treatment-payment-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 15px;
+    }
+
+    .treatment-payment-row span:last-child {
+        text-align: right;
+        white-space: nowrap;
+    }
+
+    .treatment-payment-row.balance {
+        border-top: 1px solid #aaa;
+        margin-top: 3px;
+        padding-top: 3px;
+        font-weight: bold;
+    }
+
+    .treatment-notes {
+        margin-top: 15px;
+        font-size: 13px;
+        overflow-wrap: anywhere;
+    }
+
+
+  
+
+    .pharmacy-paper {
+        width: 100%;
+        max-width: 800px;
+        min-height: 1050px;
+        margin: 0 auto;
+        padding: 30px 40px 35px;
+        background: #fff;
+        color: #111;
+        box-sizing: border-box;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.10);
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 13px;
+    }
+
+    .pharmacy-hospital-header {
+        text-align: center;
+        margin-bottom: 25px;
+    }
+
+    .pharmacy-logo-icon {
+        width: 24px;
+        height: 24px;
+        margin: 0 auto 4px;
+        display: block;
+        background: #333;
+        -webkit-mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>') no-repeat center;
+        mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>') no-repeat center;
+    }
+
+    .pharmacy-hospital-name {
+        font-size: 22px;
+        font-weight: bold;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        margin: 0 0 4px;
+        color: #111;
+    }
+
+    .pharmacy-hospital-address {
+        font-size: 11px;
+        margin: 0 0 2px;
+        color: #222;
+    }
+
+    .pharmacy-hospital-phone {
+        font-size: 11px;
+        margin: 0;
+        color: #222;
+    }
+
+    .pharmacy-bill-title {
+        text-align: center;
+        font-size: 13px;
+        font-weight: bold;
+        text-transform: uppercase;
+        color: #a89132;
+        margin: 15px 0 15px;
+        letter-spacing: 0.5px;
+    }
+
+    .pharmacy-meta-section {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 15px;
+        font-size: 13px;
+    }
+
+    .pharmacy-patient-line {
+        margin-bottom: 15px;
+        font-size: 13px;
+        display: flex;
+        align-items: baseline;
+        border-bottom: 1px dotted #777;
+        padding-bottom: 4px;
+    }
+
+    .pharmacy-patient-line span.label {
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+
+    .pharmacy-patient-line span.dots-name {
+        flex-grow: 1;
+        margin-left: 8px;
+    }
+
+    .pharmacy-items-table {
+        width: 100%;
+        border-collapse: collapse;
+        border: 1px solid #333;
+        font-size: 13px;
+    }
+
+    .pharmacy-items-table th,
+    .pharmacy-items-table td {
+        border: 1px solid #333;
+        padding: 6px 8px;
+        vertical-align: middle;
+    }
+
+    .pharmacy-items-table thead th {
+        background-color: #f0f0f0;
+        font-weight: bold;
+        text-align: left;
+    }
+
+    .pharmacy-items-table .pharmacy-col-sl {
+        width: 10%;
+        text-align: left;
+    }
+
+    .pharmacy-items-table .pharmacy-col-part {
+        width: 50%;
+    }
+
+    .pharmacy-items-table .pharmacy-col-qty {
+        width: 12%;
+        text-align: center;
+    }
+
+    .pharmacy-items-table .pharmacy-col-rate {
+        width: 14%;
+        text-align: right;
+    }
+
+    .pharmacy-items-table .pharmacy-col-amount {
+        width: 14%;
+        text-align: right;
+    }
+
+    .pharmacy-empty-row td {
+        height: 250px;
+    }
+
+    .pharmacy-items-table tfoot td {
+        font-weight: bold;
+    }
+
+    .pharmacy-footer-row {
+        margin-top: 30px;
+        display: flex;
+        justify-content: flex-end;
+        font-weight: bold;
+        font-size: 13px;
+    }
+
+
+    /* =====================================================
+        RESPONSIVE SCREEN VIEW
+    ===================================================== */
+
+    @media screen and (max-width: 600px) {
+        .treatment-page {
+            padding: 10px 5px;
+        }
+        .treatment-paper, .pharmacy-paper {
+            padding: 25px 12px;
+            min-height: 900px;
+            font-size: 12px;
+        }
+        .treatment-actions {
+            flex-wrap: wrap;
+        }
+    }
+
+    /* =====================================================
+        PRINT DESIGN
+    ===================================================== */
+
+    @page {
+        size: A4 portrait;
+        margin: 10mm;
+    }
+
+    @media print {
+        html, body {
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 100% !important;
+            background: #fff !important;
+            color: #222 !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .topbar, .footer, .no-print, .messages, .page-heading, .treatment-actions {
+            display: none !important;
+        }
+
+        .treatment-page {
+            display: block !important;
+            width: 100% !important;
+            max-width: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            background: #fff !important;
+        }
+
+        .treatment-paper, .pharmacy-paper {
+            width: 100% !important;
+            max-width: none !important;
+            min-height: 0 !important;
+            margin: 0 !important;
+            box-shadow: none !important;
+            border: 0 !important;
+            background: #fff !important;
+        }
+    }
+</style>
+
+{% endblock %}
+
+
 {% block content %}
-<div class="page-heading no-print"><div><p class="eyebrow">INVOICE DETAILS</p><h1>{{ bill.bill_number }}</h1><p class="muted">Generated {{ bill.bill_date|date:"d M Y, h:i A" }}</p></div><div class="heading-actions"><a class="btn secondary" href="{% url 'bill_list' %}">Back to bills</a><button class="btn primary" onclick="window.print()" type="button">⎙ Print bill</button></div></div>
-<section class="invoice">
-  <div class="invoice-header"><div class="invoice-brand"><div class="brand-mark">S</div><div><h2>Sivapriya Ayurvedic Hospital</h2><p>Kanyakumari Road, opposite Spinning Mill,<br>Salem, Chathannoor, Kerala</p></div></div><div class="invoice-label"><span>INVOICE</span><h1>{{ bill.get_bill_type_display|upper }} BILL</h1><b>{{ bill.bill_number }}</b><p>{{ bill.bill_date|date:"d M Y, h:i A" }}</p></div></div>
-  <div class="invoice-rule"></div>
-  <div class="invoice-parties"><div><span class="eyebrow">BILLED TO</span><h3>{{ bill.patient.name }}</h3><p>OP Number: <b>{{ bill.patient.op_number }}</b></p>{% if bill.patient.ip_number %}<p>IP Number: <b>{{ bill.patient.ip_number }}</b></p>{% endif %}<p>Phone: {{ bill.patient.phone|default:"—" }}</p><p>Age / Gender: {{ bill.patient.age|default:"—" }} / {{ bill.patient.gender|default:"—" }}</p><p>{{ bill.patient.address|default:"" }}</p></div><div><span class="eyebrow">PAYMENT</span><p>Method: <b>{{ bill.payment_method }}</b></p><p>Status: <span class="status {{ bill.payment_status|lower }}">{{ bill.payment_status }}</span></p><p>Created by: {{ bill.created_by.username|default:"Staff" }}</p></div></div>
-  <div class="table-wrap invoice-table"><table><thead><tr><th>#</th><th>Description</th><th>Qty</th><th>Unit price</th><th class="right">Amount</th></tr></thead><tbody>{% for item in bill.items.all %}<tr><td>{{ forloop.counter }}</td><td>{{ item.item_name }}</td><td>{{ item.quantity }}</td><td>₹{{ item.unit_price|floatformat:2 }}</td><td class="right">₹{{ item.line_total|floatformat:2 }}</td></tr>{% endfor %}</tbody></table></div>
-  <div class="invoice-bottom"><div class="invoice-notes"><span class="eyebrow">NOTES</span><p>{{ bill.notes|default:"Thank you."|linebreaksbr }}</p><div class="signature"><span>Authorised signature</span></div></div><div class="invoice-totals"><div><span>Subtotal</span><b>₹{{ bill.subtotal|floatformat:2 }}</b></div><div><span>Discount</span><b>₹{{ bill.discount|floatformat:2 }}</b></div><div class="invoice-grand"><span>Total</span><b>₹{{ bill.total|floatformat:2 }}</b></div><div><span>Amount paid</span><b>₹{{ bill.amount_paid|floatformat:2 }}</b></div><div class="balance-line"><span>Balance due</span><b>₹{{ bill.balance|floatformat:2 }}</b></div></div></div>
-  <div class="invoice-footer">This is a computer-generated invoice. Please retain it for your records.</div>
-</section>
+
+<div class="treatment-page">
+
+    <!-- =================================================
+        SCREEN ACTIONS
+    ================================================-- >
+
+    <div class="treatment-actions no-print">
+        <a href="{% url 'bill_list' %}">← Back to bills</a>
+        <button type="button" onclick="window.print()">Print Bill</button>
+    </div>
+
+
+    {% if bill.bill_type == 'treatment' %}
+    <!-- =================================================
+        TREATMENT BILL PAPER (Original Style Preserved)
+    ================================================= -->
+    <section class="treatment-paper">
+
+        <header class="treatment-hospital-header">
+            <h1 class="treatment-hospital-name">Sivapriya</h1>
+            <p class="treatment-hospital-subtitle">Ayurvedic Hospital</p>
+            <p class="treatment-hospital-address">Karamcode P.O. Kollam</p>
+            <p class="treatment-hospital-phone">Phone:+919447647612</p>
+        </header>
+
+        <div class="treatment-information">
+            <div class="treatment-patient-details">
+                <div class="treatment-info-row">
+                    <span class="treatment-info-label">Name</span>
+                    <span class="treatment-info-value treatment-patient-name">{{ bill.patient.name }}</span>
+                </div>
+                {% if bill.patient.address %}
+                    <div class="treatment-address">{{ bill.patient.address }}</div>
+                {% endif %}
+                {% if bill.patient.phone %}
+                    <div class="treatment-address">Phone: {{ bill.patient.phone }}</div>
+                {% endif %}
+                <div class="treatment-date-details">
+                    <p>Bill date : {{ bill.bill_date|date:"d-m-Y" }}</p>
+                    <p>Consulting doctor : <strong>{{ bill.patient.consulting_doctor|default:"-" }}</strong></p>
+                </div>
+            </div>
+
+            <div class="treatment-bill-details">
+                <div class="treatment-info-row">
+                    <span class="treatment-info-label">O.P.No</span>
+                    <span class="treatment-info-value">{{ bill.patient.op_number|default:"-" }}</span>
+                </div>
+                <div class="treatment-info-row">
+                    <span class="treatment-info-label">IP..No</span>
+                    <span class="treatment-info-value">{{ bill.patient.ip_number|default:"-" }}</span>
+                </div>
+                <div class="treatment-info-row">
+                    <span class="treatment-info-label">Room No</span>
+                    <span class="treatment-info-value">{{ bill.patient.room_number|default:"-" }}</span>
+                </div>
+                <div class="treatment-info-row">
+                    <span class="treatment-info-label">DOA</span>
+                    <span class="treatment-info-value">{% if bill.patient.admission_date %}{{ bill.patient.admission_date|date:"d-m-Y" }}{% else %}-{% endif %}</span>
+                </div>
+                <div class="treatment-info-row">
+                    <span class="treatment-info-label">DOD</span>
+                    <span class="treatment-info-value">{% if bill.patient.discharge_date %}{{ bill.patient.discharge_date|date:"d-m-Y" }}{% else %}-{% endif %}</span>
+                </div>
+                <div class="treatment-info-row">
+                    <span class="treatment-info-label">Bill No.</span>
+                    <span class="treatment-info-value">{{ bill.bill_number }}</span>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="treatment-bill-title">{{ bill.get_bill_type_display }} Bill</h2>
+
+        <div class="treatment-table-wrapper">
+            <table class="treatment-items-table">
+                <colgroup>
+                    <col class="serial-column">
+                    <col class="particulars-column">
+                    <col class="rate-column">
+                    <col class="unit-column">
+                    <col class="amount-column">
+                </colgroup>
+                <thead>
+                    <tr>
+                        <th class="serial-column">Sl.No</th>
+                        <th class="particulars-column">Particulars</th>
+                        <th class="rate-column">Rate</th>
+                        <th class="unit-column">Unit</th>
+                        <th class="amount-column">Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in bill.items.all %}
+                        <tr>
+                            <td class="serial-column">{{ forloop.counter }}</td>
+                            <td class="particulars-column">{{ item.item_name }}</td>
+                            <td class="rate-column">{{ item.unit_price|floatformat:2 }}</td>
+                            <td class="unit-column">{{ item.quantity }}</td>
+                            <td class="amount-column">{{ item.line_total|floatformat:2 }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="5" style="text-align:center;">No items found.</td>
+                        </tr>
+                    {% endfor %}
+                    <tr class="treatment-empty-row">
+                        <td></td><td></td><td></td><td></td><td></td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="2" class="signature-cell">For&nbsp; Sivapriya</td>
+                        <td colspan="2" class="total-label-cell"></td>
+                        <td class="total-amount-cell">{{ bill.total|floatformat:2 }}</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        <div class="treatment-payment-summary no-print">
+            <div class="treatment-payment-row"><span>Subtotal</span><span>{{ bill.subtotal|floatformat:2 }}</span></div>
+            <div class="treatment-payment-row"><span>Discount</span><span>{{ bill.discount|floatformat:2 }}</span></div>
+            <div class="treatment-payment-row"><span>Amount paid</span><span>{{ bill.amount_paid|floatformat:2 }}</span></div>
+            <div class="treatment-payment-row balance"><span>Balance due</span><span>{{ bill.balance|floatformat:2 }}</span></div>
+        </div>
+
+        {% if bill.notes %}
+            <div class="treatment-notes no-print"><strong>Notes:</strong> {{ bill.notes|linebreaksbr }}</div>
+        {% endif %}
+
+    </section>
+
+    {% else %}
+    <!-- =================================================
+        MEDICINE / PHARMACY BILL PAPER (Matched to Image Style)
+    ================================================= -->
+    <section class="pharmacy-paper">
+
+        <header class="pharmacy-hospital-header">
+            <div class="pharmacy-logo-icon"></div>
+            <h1 class="pharmacy-hospital-name">SIVAPRIYA AYURVEDIC HOSPITAL</h1>
+            <p class="pharmacy-hospital-address">KARAMCODE P.O, CHATHANNOOR, KOLLAM - 691579, KERALA, INDIA</p>
+            <p class="pharmacy-hospital-phone">Phone: 0474-2595151 | Mob: 9447647612</p>
+        </header>
+
+        <div class="pharmacy-bill-title">PHARMACY BILL</div>
+
+        <div class="pharmacy-meta-section">
+            <div><strong>Bill No:</strong>{{ bill.bill_number }}</div>
+            <div><strong>Date:</strong>{{ bill.bill_date|date:"d-m-Y" }}</div>
+        </div>
+
+        <div class="pharmacy-patient-line">
+            <span class="label">NAME</span>
+            <span class="dots-name">{{ bill.patient.name }}</span>
+        </div>
+
+        <table class="pharmacy-items-table">
+            <thead>
+                <tr>
+                    <th class="pharmacy-col-sl">Sl No</th>
+                    <th class="pharmacy-col-part">Particulars</th>
+                    <th class="pharmacy-col-qty">Qty</th>
+                    <th class="pharmacy-col-rate">Rate</th>
+                    <th class="pharmacy-col-amount">Rs.</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in bill.items.all %}
+                    <tr>
+                        <td class="pharmacy-col-sl">{% if forloop.counter < 10 %}0{{ forloop.counter }}{% else %}{{ forloop.counter }}{% endif %}</td>
+                        <td class="pharmacy-col-part">{{ item.item_name }}</td>
+                        <td class="pharmacy-col-qty">{% if item.quantity < 10 %}0{{ item.quantity }}{% else %}{{ item.quantity }}{% endif %}</td>
+                        <td class="pharmacy-col-rate">{{ item.unit_price|floatformat:2 }}</td>
+                        <td class="pharmacy-col-amount">{{ item.line_total|floatformat:2 }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="5" style="text-align:center;">No items found.</td>
+                    </tr>
+                {% endfor %}
+                <tr class="pharmacy-empty-row">
+                    <td></td><td></td><td></td><td></td><td></td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="4" style="text-align: right;">Total</td>
+                    <td style="text-align: right;">{{ bill.total|floatformat:2 }}</td>
+                </tr>
+            </tfoot>
+        </table>
+
+        <div class="pharmacy-footer-row">
+            For Sivapriya Ayurvedic Hospital
+        </div>
+
+    </section>
+    {% endif %}
+
+</div>
+
 {% endblock %}

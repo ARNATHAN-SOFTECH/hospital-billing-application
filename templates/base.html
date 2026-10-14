@@ -11,12 +11,15 @@
 <body>
 {% if user.is_authenticated %}
 <header class="topbar">
-  <a class="brand" href="{% url 'dashboard' %}"><span class="brand-mark">S</span><span>Sivapriya <small>Billing Desk</small></span></a>
+  <a class="brand" href="{% url 'dashboard' %}"><span class="brand-mark">
+            <img src="{% static 'images/logo.png' %}"
+                 alt="Sivapriya Hospital Logo">
+        </span>
   <nav class="main-nav">
     <a href="{% url 'dashboard' %}">Dashboard</a>
     <a href="{% url 'patient_list' %}">Patients</a>
     <a href="{% url 'treatment_bill_create' %}">Treatment Bill</a>
-    <a href="{% url 'medicine_bill_create' %}">Medicine Bill</a>
+    <a href="{% url 'medicine_bill_create' %}">Pharmacy Bill</a>
     <a href="{% url 'bill_list' %}">Bills</a>
   </nav>
   <div class="user-area"><span>{{ user.username }}</span><form method="post" action="{% url 'logout' %}">{% csrf_token %}<button class="link-button" type="submit">Logout</button></form></div>
