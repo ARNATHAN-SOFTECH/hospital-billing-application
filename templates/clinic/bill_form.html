@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}{% if bill_type == "treatment" %}Treatment{% else %}Medicine{% endif %} Bill | Hospital Billing{% endblock %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">BILLING DESK</p><h1>New {{ bill_type }} bill</h1><p class="muted">Choose a patient, add bill items and record payment.</p></div><a class="btn secondary" href="{% url 'bill_list' %}">View bills</a></div>
+<form method="post" class="panel form-panel" id="bill-form">{% csrf_token %}
+  <h2>Patient</h2>
+  <div class="mode-tabs"><label><input type="radio" name="patient_mode" value="existing" checked> Existing patient</label><label><input type="radio" name="patient_mode" value="new"> Register new patient</label></div>
+  <div id="existing-patient" class="form-grid">
+    <div class="field span-2"><label for="patient_id">Select patient <em>*</em></label><select name="patient_id" id="patient_id"><option value="">Choose patient…</option>{% for patient in patients %}<option value="{{ patient.pk }}" {% if request.GET.patient == patient.pk|stringformat:"s" %}selected{% endif %}>{{ patient.op_number }} — {{ patient.name }}{% if patient.phone %} ({{ patient.phone }}){% endif %}</option>{% endfor %}</select><small class="field-hint">Can't find the patient? Choose Register new patient.</small></div>
+  </div>
+  <div id="new-patient" class="form-grid is-hidden">
+    <div class="field span-2"><label for="new_name">Full name <em>*</em></label><input id="new_name" name="new_name"></div>
+    <div class="field"><label for="new_age">Age</label><input id="new_age" name="new_age" type="number" min="0" max="125"></div>
+    <div class="field"><label for="new_gender">Gender</label><select id="new_gender" name="new_gender"><option value="">Select</option><option>Male</option><option>Female</option><option>Other</option></select></div>
+    <div class="field"><label for="new_phone">Phone</label><input id="new_phone" name="new_phone" type="tel"></div>
+    <div class="field span-2"><label for="new_address">Address</label><textarea id="new_address" name="new_address" rows="2"></textarea></div>
+    <div class="field span-2"><label class="check-line"><input type="checkbox" name="new_is_admitted" id="new_is_admitted"> Patient admitted</label></div>
+    <div class="field"><label for="new_ip_number">IP number</label><input id="new_ip_number" name="new_ip_number"></div><div class="field"><label for="new_room_number">Room / bed</label><input id="new_room_number" name="new_room_number"></div>
+    <div class="field"><label for="new_admission_date">Admission date</label><input type="date" id="new_admission_date" name="new_admission_date"></div><div class="field"><label for="new_discharge_date">Discharge date</label><input type="date" id="new_discharge_date" name="new_discharge_date"></div>
+    <div class="field span-2"><label for="new_consulting_doctor">Consulting doctor</label><input id="new_consulting_doctor" name="new_consulting_doctor"></div>
+  </div>
+  <div class="section-rule"></div>
+  <div class="panel-heading"><div><h2>{% if bill_type == "treatment" %}Treatment items{% else %}Medicine items{% endif %}</h2><p class="muted">Add one or more items. Prices are taken from the catalogue.</p></div><button class="btn secondary small" type="button" id="add-item">＋ Add item</button></div>
+  {% if not catalogue %}<div class="message error">The catalogue is empty. Ask an administrator to add {% if bill_type == "treatment" %}treatments{% else %}medicines{% endif %} before creating a bill.</div>{% endif %}
+  <div id="items-container">
+    <div class="bill-item-row">
+      <div class="field item-select"><label>{% if bill_type == "treatment" %}Treatment{% else %}Medicine{% endif %}</label><select name="item_id" class="catalogue-select" required><option value="">Choose item…</option>{% for item in catalogue %}<option value="{{ item.pk }}" data-price="{{ item.price }}" {% if bill_type == "medicine" and item.stock_quantity == 0 %}disabled{% endif %}>{{ item.name }} — ₹{{ item.price|floatformat:2 }}{% if bill_type == "medicine" %} (stock: {{ item.stock_quantity }}){% endif %}</option>{% endfor %}</select></div>
+      <div class="field quantity-field"><label>Quantity</label><input name="quantity" class="quantity-input" type="number" min="1" value="1" required></div>
+      <div class="field price-field"><label>Unit price</label><div class="price-readout">₹0.00</div></div>
+      <div class="field line-total-field"><label>Line total</label><div class="line-readout">₹0.00</div></div>
+      <button type="button" class="remove-item" title="Remove item" aria-label="Remove item">×</button>
+    </div>
+  </div>
+  <div class="section-rule"></div>
+  <h2>Payment and totals</h2>
+  <div class="form-grid">
+    <div class="field"><label for="discount">Discount (₹)</label><input type="number" id="discount" name="discount" min="0" step="0.01" value="0"></div>
+    <div class="field"><label for="amount_paid">Amount paid (₹)</label><input type="number" id="amount_paid" name="amount_paid" min="0" step="0.01" value="0" required></div>
+    <div class="field"><label for="payment_method">Payment method</label><select id="payment_method" name="payment_method"><option>Cash</option><option>UPI</option><option>Card</option><option>Bank Transfer</option></select></div>
+    <div class="field span-2"><label for="notes">Notes</label><textarea id="notes" name="notes" rows="2"></textarea></div>
+  </div>
+  <div class="totals-box"><div><span>Subtotal</span><strong id="subtotal-display">₹0.00</strong></div><div><span>Discount</span><strong id="discount-display">₹0.00</strong></div><div class="grand-total"><span>Bill total</span><strong id="total-display">₹0.00</strong></div><div><span>Estimated balance</span><strong id="balance-display">₹0.00</strong></div></div>
+  <div class="form-actions"><a class="btn secondary" href="{% url 'dashboard' %}">Cancel</a><button class="btn primary" type="submit" {% if not catalogue %}disabled{% endif %}>Generate bill</button></div>
+</form>
+<template id="item-template"><div class="bill-item-row"><div class="field item-select"><label>{% if bill_type == "treatment" %}Treatment{% else %}Medicine{% endif %}</label><select name="item_id" class="catalogue-select" required><option value="">Choose item…</option>{% for item in catalogue %}<option value="{{ item.pk }}" data-price="{{ item.price }}" {% if bill_type == "medicine" and item.stock_quantity == 0 %}disabled{% endif %}>{{ item.name }} — ₹{{ item.price|floatformat:2 }}{% if bill_type == "medicine" %} (stock: {{ item.stock_quantity }}){% endif %}</option>{% endfor %}</select></div><div class="field quantity-field"><label>Quantity</label><input name="quantity" class="quantity-input" type="number" min="1" value="1" required></div><div class="field price-field"><label>Unit price</label><div class="price-readout">₹0.00</div></div><div class="field line-total-field"><label>Line total</label><div class="line-readout">₹0.00</div></div><button type="button" class="remove-item" title="Remove item" aria-label="Remove item">×</button></div></template>
+{% endblock %}
+{% block scripts %}
+<script>
+(function(){
+ const container=document.getElementById('items-container'), tpl=document.getElementById('item-template');
+ const money=n=>'₹'+Number(n||0).toFixed(2);
+ function updateRow(row){const sel=row.querySelector('.catalogue-select'), qty=row.querySelector('.quantity-input'), opt=sel.options[sel.selectedIndex];const price=opt&&opt.dataset.price?Number(opt.dataset.price):0;const q=Math.max(0,Number(qty.value)||0);row.querySelector('.price-readout').textContent=money(price);row.querySelector('.line-readout').textContent=money(price*q);return price*q;}
+ function updateTotals(){let subtotal=0;container.querySelectorAll('.bill-item-row').forEach(row=>subtotal+=updateRow(row));const discount=Math.max(0,Number(document.getElementById('discount').value)||0), paid=Math.max(0,Number(document.getElementById('amount_paid').value)||0), total=Math.max(0,subtotal-discount);document.getElementById('subtotal-display').textContent=money(subtotal);document.getElementById('discount-display').textContent=money(discount);document.getElementById('total-display').textContent=money(total);document.getElementById('balance-display').textContent=money(Math.max(0,total-paid));}
+ function bind(row){row.querySelector('.catalogue-select').addEventListener('change',updateTotals);row.querySelector('.quantity-input').addEventListener('input',updateTotals);row.querySelector('.remove-item').addEventListener('click',()=>{if(container.querySelectorAll('.bill-item-row').length>1){row.remove();updateTotals();}else{row.querySelector('select').value='';row.querySelector('input').value=1;updateTotals();}});}
+ container.querySelectorAll('.bill-item-row').forEach(bind);
+ document.getElementById('add-item').addEventListener('click',()=>{const row=tpl.content.firstElementChild.cloneNode(true);container.appendChild(row);bind(row);updateTotals();});
+ document.getElementById('discount').addEventListener('input',updateTotals);document.getElementById('amount_paid').addEventListener('input',updateTotals);
+ const radios=document.querySelectorAll('input[name="patient_mode"]'), existing=document.getElementById('existing-patient'), fresh=document.getElementById('new-patient');
+ function togglePatient(){const isNew=document.querySelector('input[name="patient_mode"]:checked').value==='new';existing.classList.toggle('is-hidden',isNew);fresh.classList.toggle('is-hidden',!isNew);document.getElementById('patient_id').required=!isNew;document.getElementById('new_name').required=isNew;}
+ radios.forEach(r=>r.addEventListener('change',togglePatient));togglePatient();
+ const admitted=document.getElementById('new_is_admitted');const admissionInputs=['new_ip_number','new_room_number','new_admission_date','new_discharge_date','new_consulting_doctor'].map(id=>document.getElementById(id));
+ function toggleAdmission(){admissionInputs.forEach(el=>{el.closest('.field').classList.toggle('is-hidden',!admitted.checked);});}admitted.addEventListener('change',toggleAdmission);toggleAdmission();updateTotals();
+})();
+</script>
+{% endblock %}

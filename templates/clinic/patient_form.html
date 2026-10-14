@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Register Patient | Hospital Billing{% endblock %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">PATIENT MANAGEMENT</p><h1>Register a patient</h1><p class="muted">OP number is generated automatically after saving.</p></div><a class="btn secondary" href="{% url 'patient_list' %}">Back to patients</a></div>
+<form method="post" class="panel form-panel">{% csrf_token %}
+  <h2>Personal details</h2>
+  <div class="form-grid">
+    <div class="field span-2"><label for="name">Full name <em>*</em></label><input id="name" name="name" value="{{ form_data.name|default:'' }}" required></div>
+    <div class="field"><label for="age">Age</label><input id="age" name="age" type="number" min="0" max="125" value="{{ form_data.age|default:'' }}"></div>
+    <div class="field"><label for="gender">Gender</label><select id="gender" name="gender"><option value="">Select</option>{% for value,label in gender_choices %}<option>{{ label }}</option>{% endfor %}<option {% if form_data.gender == "Male" %}selected{% endif %}>Male</option><option {% if form_data.gender == "Female" %}selected{% endif %}>Female</option><option {% if form_data.gender == "Other" %}selected{% endif %}>Other</option></select></div>
+    <div class="field"><label for="phone">Phone number</label><input id="phone" name="phone" type="tel" value="{{ form_data.phone|default:'' }}"></div>
+    <div class="field"><label for="email">Email</label><input id="email" name="email" type="email" value="{{ form_data.email|default:'' }}"></div>
+    <div class="field span-2"><label for="address">Address</label><textarea id="address" name="address" rows="3">{{ form_data.address|default:'' }}</textarea></div>
+  </div>
+  <div class="section-rule"></div>
+  <div class="toggle-heading"><div><h2>Admission details</h2><p class="muted">Enable this if the patient is being admitted as an inpatient.</p></div><label class="switch-label"><input type="checkbox" id="is_admitted" name="is_admitted" {% if form_data.is_admitted %}checked{% endif %}> Patient admitted</label></div>
+  <div id="admission-fields" class="form-grid admission-fields">
+    <div class="field"><label for="ip_number">IP number</label><input id="ip_number" name="ip_number" value="{{ form_data.ip_number|default:'' }}" placeholder="e.g. IP00001"></div>
+    <div class="field"><label for="room_number">Room / bed number</label><input id="room_number" name="room_number" value="{{ form_data.room_number|default:'' }}"></div>
+    <div class="field"><label for="admission_date">Admission date</label><input id="admission_date" name="admission_date" type="date" value="{{ form_data.admission_date|default:'' }}"></div>
+    <div class="field"><label for="discharge_date">Discharge date</label><input id="discharge_date" name="discharge_date" type="date" value="{{ form_data.discharge_date|default:'' }}"></div>
+    <div class="field span-2"><label for="consulting_doctor">Consulting doctor</label><input id="consulting_doctor" name="consulting_doctor" value="{{ form_data.consulting_doctor|default:'' }}"></div>
+  </div>
+  <div class="form-actions"><a class="btn secondary" href="{% url 'patient_list' %}">Cancel</a><button class="btn primary" type="submit">Save patient</button></div>
+</form>
+{% endblock %}
+{% block scripts %}<script>
+(function(){const check=document.getElementById('is_admitted');const fields=document.getElementById('admission-fields');function toggle(){fields.classList.toggle('is-hidden',!check.checked)}check.addEventListener('change',toggle);toggle();})();
+</script>{% endblock %}

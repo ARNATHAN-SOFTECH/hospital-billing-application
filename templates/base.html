@@ -1,0 +1,32 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Hospital Billing{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'css/app.css' %}">
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+{% if user.is_authenticated %}
+<header class="topbar">
+  <a class="brand" href="{% url 'dashboard' %}"><span class="brand-mark">S</span><span>Sivapriya <small>Billing Desk</small></span></a>
+  <nav class="main-nav">
+    <a href="{% url 'dashboard' %}">Dashboard</a>
+    <a href="{% url 'patient_list' %}">Patients</a>
+    <a href="{% url 'treatment_bill_create' %}">Treatment Bill</a>
+    <a href="{% url 'medicine_bill_create' %}">Medicine Bill</a>
+    <a href="{% url 'bill_list' %}">Bills</a>
+  </nav>
+  <div class="user-area"><span>{{ user.username }}</span><form method="post" action="{% url 'logout' %}">{% csrf_token %}<button class="link-button" type="submit">Logout</button></form></div>
+</header>
+{% endif %}
+<main class="{% if user.is_authenticated %}page{% else %}auth-page{% endif %}">
+  {% if messages %}<div class="messages">{% for message in messages %}<div class="message {{ message.tags }}">{{ message }}</div>{% endfor %}</div>{% endif %}
+  {% block content %}{% endblock %}
+</main>
+<footer class="footer">Hospital Billing Application <span>•</span> Internal staff use</footer>
+{% block scripts %}{% endblock %}
+</body>
+</html>

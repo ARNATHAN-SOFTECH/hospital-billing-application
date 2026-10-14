@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Patients | Hospital Billing{% endblock %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">PATIENT MANAGEMENT</p><h1>Patients</h1><p class="muted">Search by name, OP number, IP number or phone.</p></div><a class="btn primary" href="{% url 'patient_create' %}">＋ Register patient</a></div>
+<form method="get" class="search-bar"><input name="q" value="{{ q }}" placeholder="Search patients…"><button class="btn primary" type="submit">Search</button>{% if q %}<a class="btn secondary" href="{% url 'patient_list' %}">Clear</a>{% endif %}</form>
+<section class="panel"><div class="table-wrap"><table><thead><tr><th>OP number</th><th>Patient</th><th>Phone</th><th>Admission</th><th>Registered</th><th></th></tr></thead><tbody>
+{% for patient in patients %}<tr><td><b>{{ patient.op_number }}</b></td><td><a href="{% url 'patient_detail' patient.pk %}">{{ patient.name }}</a><small class="cell-sub">{{ patient.age|default:"—" }} years{% if patient.gender %} · {{ patient.gender }}{% endif %}</small></td><td>{{ patient.phone|default:"—" }}</td><td>{% if patient.is_admitted %}<span class="status partial">Admitted</span><small class="cell-sub">{{ patient.ip_number|default:"No IP number" }}</small>{% else %}<span class="muted">Outpatient</span>{% endif %}</td><td>{{ patient.created_at|date:"d M Y" }}</td><td><a class="table-action" href="{% url 'patient_detail' patient.pk %}">View →</a></td></tr>
+{% empty %}<tr><td colspan="6" class="empty">No patients found. Register a new patient to get started.</td></tr>{% endfor %}
+</tbody></table></div><div class="table-footer">{{ patients|length }} patient{{ patients|length|pluralize }}</div></section>
+{% endblock %}
