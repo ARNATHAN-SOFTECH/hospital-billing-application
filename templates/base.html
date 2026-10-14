@@ -12,9 +12,9 @@
 {% if user.is_authenticated %}
 <header class="topbar">
   <a class="brand" href="{% url 'dashboard' %}"><span class="brand-mark">
-            <img src="{% static 'images/logo.png' %}"
+            <img src="{% static 'images/Logo.png' %}"
                  alt="Sivapriya Hospital Logo">
-        </span>
+        </span><span class="brand-title">SIVAPRIYA AYURVEDIC</span>
   <nav class="main-nav">
     <a href="{% url 'dashboard' %}">Dashboard</a>
     <a href="{% url 'patient_list' %}">Patients</a>

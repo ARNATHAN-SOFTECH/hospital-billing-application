@@ -1,4 +1,6 @@
+
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}
     {{ bill.bill_number }} | Sivapriya Ayurvedic Hospital
@@ -310,15 +312,23 @@
         margin-bottom: 25px;
     }
 
-    .pharmacy-logo-icon {
-        width: 24px;
-        height: 24px;
-        margin: 0 auto 4px;
-        display: block;
-        background: #333;
-        -webkit-mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>') no-repeat center;
-        mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>') no-repeat center;
+      .pharmacy-logo-icon {
+        width: 65px;
+        height: 65px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 10px;
+        overflow: hidden;
+        background: transparent;
     }
+
+  .pharmacy-logo-icon img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+  }
 
     .pharmacy-hospital-name {
         font-size: 22px;
@@ -645,7 +655,8 @@
     <section class="pharmacy-paper">
 
         <header class="pharmacy-hospital-header">
-            <div class="pharmacy-logo-icon"></div>
+            <div class="pharmacy-logo-icon">
+            <img src="{% static 'images/Logo.png' %}" alt="Sivapriya Ayurvedic Hospital Logo"></div>
             <h1 class="pharmacy-hospital-name">SIVAPRIYA AYURVEDIC HOSPITAL</h1>
             <p class="pharmacy-hospital-address">KARAMCODE P.O, CHATHANNOOR, KOLLAM - 691579, KERALA, INDIA</p>
             <p class="pharmacy-hospital-phone">Phone: 0474-2595151 | Mob: 9447647612</p>
