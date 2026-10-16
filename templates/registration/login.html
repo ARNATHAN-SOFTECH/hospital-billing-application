@@ -1,20 +1,60 @@
 {% extends "base.html" %}
+{% load static %}
+
 {% block title %}Staff Login | Hospital Billing{% endblock %}
+
 {% block content %}
 <div class="login-card">
-  <img src="{% static 'images/logo.png' %}" alt="Sivapriya Ayurvedic Hospital Logo"></div>
-  <p class="eyebrow">SIVAPRIYA AYURVEDIC HOSPITAL</p>
-  <h1>Staff login</h1>
-  <p class="muted">Sign in to access patient records and billing.</p>
-  {% if form.errors %}<div class="message error">Username or password is incorrect. Please try again.</div>{% endif %}
-  <form method="post" class="stack-form">{% csrf_token %}
-    <label for="id_username">Username</label>
-    <input id="id_username" type="text" name="username" autocomplete="username" required autofocus>
-    <label for="id_password">Password</label>
-    <input id="id_password" type="password" name="password" autocomplete="current-password" required>
-    <input type="hidden" name="next" value="{{ next }}">
-    <button class="btn primary full" type="submit">Sign in securely</button>
-  </form>
-  <p class="muted tiny">Staff accounts are created by the system administrator.</p>
+
+    <img src="{% static 'images/logo.png' %}"
+         alt="Sivapriya Ayurvedic Hospital Logo">
+
+    <p class="eyebrow">SIVAPRIYA AYURVEDIC HOSPITAL</p>
+
+    <h1>Staff login</h1>
+
+    <p class="muted">
+        Sign in to access patient records and billing.
+    </p>
+
+    {% if form.errors %}
+        <div class="message error">
+            Username or password is incorrect. Please try again.
+        </div>
+    {% endif %}
+
+    <form method="post" class="stack-form">
+        {% csrf_token %}
+
+        <label for="id_username">Username</label>
+        <input
+            id="id_username"
+            type="text"
+            name="username"
+            autocomplete="username"
+            required
+            autofocus
+        >
+
+        <label for="id_password">Password</label>
+        <input
+            id="id_password"
+            type="password"
+            name="password"
+            autocomplete="current-password"
+            required
+        >
+
+        <input type="hidden" name="next" value="{{ next }}">
+
+        <button class="btn primary full" type="submit">
+            Sign in securely
+        </button>
+    </form>
+
+    <p class="muted tiny">
+        Staff accounts are created by the system administrator.
+    </p>
+
 </div>
 {% endblock %}
