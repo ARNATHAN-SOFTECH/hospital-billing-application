@@ -205,6 +205,7 @@ def patient_create(request):
                     age=age,
                     gender=request.POST.get("gender", ""),
                     phone=request.POST.get("phone", "").strip(),
+                    alternative_phone = request.POST.get("alternative_phone", "").strip(),
                     email=request.POST.get("email", "").strip(),
                     address=request.POST.get("address", "").strip(),
 
@@ -428,6 +429,8 @@ def create_bill(request, bill_type):
                         phone=request.POST.get(
                             "new_phone", ""
                         ).strip(),
+
+                        alternative_phone = request.POST.get("alternative_phone", "").strip(),
 
                         address=request.POST.get(
                             "new_address", ""

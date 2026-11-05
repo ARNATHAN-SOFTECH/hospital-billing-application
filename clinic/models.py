@@ -12,7 +12,6 @@ class Patient(models.Model):
         ("Other", "Other"),
     ]
 
-    # OP number must be entered manually
     op_number = models.CharField(
         max_length=20,
         unique=True
@@ -22,6 +21,7 @@ class Patient(models.Model):
     age = models.PositiveSmallIntegerField(null=True, blank=True)
     gender = models.CharField(max_length=10, choices=GENDER_CHOICES, blank=True)
     phone = models.CharField(max_length=20, blank=True)
+    alternative_phone = models.CharField(max_length=15, blank=True, null=True)
     email = models.EmailField(blank=True)
     address = models.TextField(blank=True)
 
@@ -43,8 +43,6 @@ class Patient(models.Model):
         ordering = ["-created_at"]
 
     def save(self, *args, **kwargs):
-        # Do not generate OP number automatically.
-        # OP number is entered manually during registration.
 
         if not self.ip_number:
             self.ip_number = None
