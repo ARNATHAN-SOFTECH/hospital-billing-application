@@ -18,35 +18,38 @@
         min-height: 100vh;
         padding: 25px 15px;
         color: #222;
-        font-family: "Times New Roman", Times, serif;
+        
     }
 
-    .treatment-actions {
-        max-width: 800px;
-        margin: 0 auto 18px;
+        .treatment-actions {
         display: flex;
         justify-content: space-between;
         align-items: center;
+        margin-bottom: 20px;
         gap: 12px;
-        font-family: Arial, sans-serif;
     }
 
     .treatment-actions a,
     .treatment-actions button {
-        display: inline-block;
-        padding: 10px 18px;
-        border: 1px solid #555;
-        background: #fff;
-        color: #222;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: #1f5c45;
+        color: #ffffff !important;
         text-decoration: none;
-        font-size: 13px;
+        border: none;
+        padding: 11px 22px;
+        border-radius: 7px;
+        font-size: 14px;
+        font-weight: 600;
         cursor: pointer;
-        border-radius: 0;
+        transition: background 0.2s ease;
     }
 
-    .treatment-actions button:hover,
-    .treatment-actions a:hover {
-        background: #e8e8e5;
+    .treatment-actions a:hover,
+    .treatment-actions button:hover {
+        background: #164331;
+        color: #ffffff !important;
     }
 
     /* =====================================================
@@ -516,81 +519,161 @@
 
 {% block content %}
 
+
+
 <div class="treatment-page">
 
-    <!-- =================================================
-        SCREEN ACTIONS
-    ================================================-- >
+    <!-- SCREEN ACTIONS -->
 
     <div class="treatment-actions no-print">
-        <a href="{% url 'bill_list' %}">← Back to bills</a>
-        <button type="button" onclick="window.print()">Print Bill</button>
+
+        <a href="{% url 'bill_list' %}">
+            ← Back to bills
+        </a>
+
+        <button type="button" onclick="window.print()">
+            🖨 Print Bill
+        </button>
+
     </div>
 
 
     {% if bill.bill_type == 'treatment' %}
-    <!-- =================================================
-        TREATMENT BILL PAPER (Original Style Preserved)
-    ================================================= -->
+
+    <!-- =====================================
+         TREATMENT BILL
+    ====================================== -->
+
     <section class="treatment-paper">
 
         <header class="treatment-hospital-header">
-            <h1 class="treatment-hospital-name">Sivapriya</h1>
-            <p class="treatment-hospital-subtitle">Ayurvedic Hospital</p>
-            <p class="treatment-hospital-address">Karamcode P.O. Kollam</p>
-            <p class="treatment-hospital-phone">Phone:+919447647612</p>
+
+            <h1 class="treatment-hospital-name">
+                Sivapriya
+            </h1>
+
+            <p class="treatment-hospital-subtitle">
+                Ayurvedic Hospital
+            </p>
+
+            <p class="treatment-hospital-address">
+                Karamcode P.O. Kollam
+            </p>
+
+            <p class="treatment-hospital-phone">
+                Phone:+919447647612
+            </p>
+
         </header>
 
+
         <div class="treatment-information">
+
             <div class="treatment-patient-details">
+
                 <div class="treatment-info-row">
                     <span class="treatment-info-label">Name</span>
-                    <span class="treatment-info-value treatment-patient-name">{{ bill.patient.name }}</span>
+                    <span class="treatment-info-value treatment-patient-name">
+                        {{ bill.patient.name }}
+                    </span>
                 </div>
+
                 {% if bill.patient.address %}
-                    <div class="treatment-address">{{ bill.patient.address }}</div>
+                    <div class="treatment-address">
+                        {{ bill.patient.address }}
+                    </div>
                 {% endif %}
+
                 {% if bill.patient.phone %}
-                    <div class="treatment-address">Phone: {{ bill.patient.phone }}</div>
+                    <div class="treatment-address">
+                        Phone: {{ bill.patient.phone }}
+                    </div>
                 {% endif %}
+
                 <div class="treatment-date-details">
-                    <p>Bill date : {{ bill.bill_date|date:"d-m-Y" }}</p>
-                    <p>Consulting doctor : <strong>{{ bill.patient.consulting_doctor|default:"-" }}</strong></p>
+
+                    <p>
+                        Bill date : {{ bill.bill_date|date:"d-m-Y" }}
+                    </p>
+
+                    <p>
+                        Consulting doctor :
+                        <strong>
+                            {{ bill.patient.consulting_doctor|default:"-" }}
+                        </strong>
+                    </p>
+
                 </div>
+
             </div>
+
 
             <div class="treatment-bill-details">
+
                 <div class="treatment-info-row">
                     <span class="treatment-info-label">O.P.No</span>
-                    <span class="treatment-info-value">{{ bill.patient.op_number|default:"-" }}</span>
+                    <span class="treatment-info-value">
+                        {{ bill.patient.op_number|default:"-" }}
+                    </span>
                 </div>
+
                 <div class="treatment-info-row">
                     <span class="treatment-info-label">IP..No</span>
-                    <span class="treatment-info-value">{{ bill.patient.ip_number|default:"-" }}</span>
+                    <span class="treatment-info-value">
+                        {{ bill.patient.ip_number|default:"-" }}
+                    </span>
                 </div>
+
                 <div class="treatment-info-row">
                     <span class="treatment-info-label">Room No</span>
-                    <span class="treatment-info-value">{{ bill.patient.room_number|default:"-" }}</span>
+                    <span class="treatment-info-value">
+                        {{ bill.patient.room_number|default:"-" }}
+                    </span>
                 </div>
+
                 <div class="treatment-info-row">
                     <span class="treatment-info-label">DOA</span>
-                    <span class="treatment-info-value">{% if bill.patient.admission_date %}{{ bill.patient.admission_date|date:"d-m-Y" }}{% else %}-{% endif %}</span>
+                    <span class="treatment-info-value">
+                        {% if bill.patient.admission_date %}
+                            {{ bill.patient.admission_date|date:"d-m-Y" }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </span>
                 </div>
+
                 <div class="treatment-info-row">
                     <span class="treatment-info-label">DOD</span>
-                    <span class="treatment-info-value">{% if bill.patient.discharge_date %}{{ bill.patient.discharge_date|date:"d-m-Y" }}{% else %}-{% endif %}</span>
+                    <span class="treatment-info-value">
+                        {% if bill.patient.discharge_date %}
+                            {{ bill.patient.discharge_date|date:"d-m-Y" }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </span>
                 </div>
+
                 <div class="treatment-info-row">
                     <span class="treatment-info-label">Bill No.</span>
-                    <span class="treatment-info-value">{{ bill.bill_number }}</span>
+                    <span class="treatment-info-value">
+                        {{ bill.bill_number }}
+                    </span>
                 </div>
+
             </div>
+
         </div>
 
-        <h2 class="treatment-bill-title">{{ bill.get_bill_type_display }} Bill</h2>
+
+        <h2 class="treatment-bill-title">
+            {{ bill.get_bill_type_display }} Bill
+        </h2>
+
 
         <div class="treatment-table-wrapper">
+
             <table class="treatment-items-table">
+
                 <colgroup>
                     <col class="serial-column">
                     <col class="particulars-column">
@@ -598,6 +681,7 @@
                     <col class="unit-column">
                     <col class="amount-column">
                 </colgroup>
+
                 <thead>
                     <tr>
                         <th class="serial-column">Sl.No</th>
@@ -607,74 +691,176 @@
                         <th class="amount-column">Amount</th>
                     </tr>
                 </thead>
+
                 <tbody>
+
                     {% for item in bill.items.all %}
+
                         <tr>
-                            <td class="serial-column">{{ forloop.counter }}</td>
-                            <td class="particulars-column">{{ item.item_name }}</td>
-                            <td class="rate-column">{{ item.unit_price|floatformat:2 }}</td>
-                            <td class="unit-column">{{ item.quantity }}</td>
-                            <td class="amount-column">{{ item.line_total|floatformat:2 }}</td>
+                            <td class="serial-column">
+                                {{ forloop.counter }}
+                            </td>
+
+                            <td class="particulars-column">
+                                {{ item.item_name }}
+                            </td>
+
+                            <td class="rate-column">
+                                {{ item.unit_price|floatformat:2 }}
+                            </td>
+
+                            <td class="unit-column">
+                                {{ item.quantity }}
+                            </td>
+
+                            <td class="amount-column">
+                                {{ item.line_total|floatformat:2 }}
+                            </td>
                         </tr>
+
                     {% empty %}
+
                         <tr>
-                            <td colspan="5" style="text-align:center;">No items found.</td>
+                            <td colspan="5" style="text-align:center;">
+                                No items found.
+                            </td>
                         </tr>
+
                     {% endfor %}
+
                     <tr class="treatment-empty-row">
-                        <td></td><td></td><td></td><td></td><td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
                     </tr>
+
                 </tbody>
+
                 <tfoot>
+
                     <tr>
-                        <td colspan="2" class="signature-cell">For&nbsp; Sivapriya</td>
+                        <td colspan="2" class="signature-cell">
+                            For&nbsp; Sivapriya
+                        </td>
+
                         <td colspan="2" class="total-label-cell"></td>
-                        <td class="total-amount-cell">{{ bill.total|floatformat:2 }}</td>
+
+                        <td class="total-amount-cell">
+                            {{ bill.total|floatformat:2 }}
+                        </td>
                     </tr>
+
                 </tfoot>
+
             </table>
+
         </div>
+
 
         <div class="treatment-payment-summary no-print">
-            <div class="treatment-payment-row"><span>Subtotal</span><span>{{ bill.subtotal|floatformat:2 }}</span></div>
-            <div class="treatment-payment-row"><span>Discount</span><span>{{ bill.discount|floatformat:2 }}</span></div>
-            <div class="treatment-payment-row"><span>Amount paid</span><span>{{ bill.amount_paid|floatformat:2 }}</span></div>
-            <div class="treatment-payment-row balance"><span>Balance due</span><span>{{ bill.balance|floatformat:2 }}</span></div>
+
+            <div class="treatment-payment-row">
+                <span>Subtotal</span>
+                <span>{{ bill.subtotal|floatformat:2 }}</span>
+            </div>
+
+            <div class="treatment-payment-row">
+                <span>Discount</span>
+                <span>{{ bill.discount|floatformat:2 }}</span>
+            </div>
+
+            <div class="treatment-payment-row">
+                <span>Amount paid</span>
+                <span>{{ bill.amount_paid|floatformat:2 }}</span>
+            </div>
+
+            <div class="treatment-payment-row balance">
+                <span>Balance due</span>
+                <span>{{ bill.balance|floatformat:2 }}</span>
+            </div>
+
         </div>
 
+
         {% if bill.notes %}
-            <div class="treatment-notes no-print"><strong>Notes:</strong> {{ bill.notes|linebreaksbr }}</div>
+
+            <div class="treatment-notes no-print">
+                <strong>Notes:</strong>
+                {{ bill.notes|linebreaksbr }}
+            </div>
+
         {% endif %}
 
     </section>
 
+
     {% else %}
-    <!-- =================================================
-        MEDICINE / PHARMACY BILL PAPER (Matched to Image Style)
-    ================================================= -->
+
+    <!-- =====================================
+         PHARMACY BILL
+    ====================================== -->
+
     <section class="pharmacy-paper">
 
         <header class="pharmacy-hospital-header">
+
             <div class="pharmacy-logo-icon">
-            <img src="{% static 'images/Logo.png' %}" alt="Sivapriya Ayurvedic Hospital Logo"></div>
-            <h1 class="pharmacy-hospital-name">SIVAPRIYA AYURVEDIC HOSPITAL</h1>
-            <p class="pharmacy-hospital-address">KARAMCODE P.O, CHATHANNOOR, KOLLAM - 691579, KERALA, INDIA</p>
-            <p class="pharmacy-hospital-phone">Phone: 0474-2595151 | Mob: 9447647612</p>
+                <img
+                    src="{% static 'images/Logo.png' %}"
+                    alt="Sivapriya Ayurvedic Hospital Logo"
+                >
+            </div>
+
+            <h1 class="pharmacy-hospital-name">
+                SIVAPRIYA AYURVEDIC HOSPITAL
+            </h1>
+
+            <p class="pharmacy-hospital-address">
+                KARAMCODE P.O, CHATHANNOOR, KOLLAM - 691579, KERALA, INDIA
+            </p>
+
+            <p class="pharmacy-hospital-phone">
+                Phone: 0474-2595151 | Mob: 9447647612
+            </p>
+
         </header>
 
-        <div class="pharmacy-bill-title">PHARMACY BILL</div>
+
+        <div class="pharmacy-bill-title">
+            PHARMACY BILL
+        </div>
+
 
         <div class="pharmacy-meta-section">
-            <div><strong>Bill No:</strong>{{ bill.bill_number }}</div>
-            <div><strong>Date:</strong>{{ bill.bill_date|date:"d-m-Y" }}</div>
+
+            <div>
+                <strong>Bill No:</strong>
+                {{ bill.bill_number }}
+            </div>
+
+            <div>
+                <strong>Date:</strong>
+                {{ bill.bill_date|date:"d-m-Y" }}
+            </div>
+
         </div>
+
 
         <div class="pharmacy-patient-line">
+
             <span class="label">NAME</span>
-            <span class="dots-name">{{ bill.patient.name }}</span>
+
+            <span class="dots-name">
+                {{ bill.patient.name }}
+            </span>
+
         </div>
 
+
         <table class="pharmacy-items-table">
+
             <thead>
                 <tr>
                     <th class="pharmacy-col-sl">Sl No</th>
@@ -684,39 +870,110 @@
                     <th class="pharmacy-col-amount">Rs.</th>
                 </tr>
             </thead>
+
+
             <tbody>
+
                 {% for item in bill.items.all %}
+
                     <tr>
-                        <td class="pharmacy-col-sl">{% if forloop.counter < 10 %}0{{ forloop.counter }}{% else %}{{ forloop.counter }}{% endif %}</td>
-                        <td class="pharmacy-col-part">{{ item.item_name }}</td>
-                        <td class="pharmacy-col-qty">{% if item.quantity < 10 %}0{{ item.quantity }}{% else %}{{ item.quantity }}{% endif %}</td>
-                        <td class="pharmacy-col-rate">{{ item.unit_price|floatformat:2 }}</td>
-                        <td class="pharmacy-col-amount">{{ item.line_total|floatformat:2 }}</td>
+
+                        <td class="pharmacy-col-sl">
+
+                            {% if forloop.counter < 10 %}
+                                0{{ forloop.counter }}
+                            {% else %}
+                                {{ forloop.counter }}
+                            {% endif %}
+
+                        </td>
+
+                        <td class="pharmacy-col-part">
+                            {{ item.item_name }}
+                        </td>
+
+                        <td class="pharmacy-col-qty">
+
+                            {% if item.quantity < 10 %}
+                                0{{ item.quantity }}
+                            {% else %}
+                                {{ item.quantity }}
+                            {% endif %}
+
+                        </td>
+
+                        <td class="pharmacy-col-rate">
+                            {{ item.unit_price|floatformat:2 }}
+                        </td>
+
+                        <td class="pharmacy-col-amount">
+                            {{ item.line_total|floatformat:2 }}
+                        </td>
+
                     </tr>
+
                 {% empty %}
+
                     <tr>
-                        <td colspan="5" style="text-align:center;">No items found.</td>
+                        <td colspan="5" style="text-align:center;">
+                            No items found.
+                        </td>
                     </tr>
+
                 {% endfor %}
+
+
                 <tr class="pharmacy-empty-row">
-                    <td></td><td></td><td></td><td></td><td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
                 </tr>
+
             </tbody>
+
+
             <tfoot>
+
                 <tr>
-                    <td colspan="4" style="text-align: right;">Total</td>
-                    <td style="text-align: right;">{{ bill.total|floatformat:2 }}</td>
+                    <td colspan="4" style="text-align: right;">
+                        Total
+                    </td>
+
+                    <td style="text-align: right;">
+                        {{ bill.total|floatformat:2 }}
+                    </td>
                 </tr>
+
             </tfoot>
+
         </table>
+
 
         <div class="pharmacy-footer-row">
             For Sivapriya Ayurvedic Hospital
         </div>
 
     </section>
+
     {% endif %}
 
 </div>
+
+
+<!-- AUTO PRINT WHEN OPENED FROM BILL LIST -->
+
+{% if request.GET.print == "1" %}
+
+<script>
+    window.addEventListener("load", function () {
+        setTimeout(function () {
+            window.print();
+        }, 500);
+    });
+</script>
+
+{% endif %}
 
 {% endblock %}
